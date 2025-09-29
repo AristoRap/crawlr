@@ -213,7 +213,7 @@ module Crawlr
       return unless valid_url?(url)
 
       yield self if block_given?
-      fetch_robots(url) unless @config.ignore_robots_txt
+      fetch_robots_txt(url) unless @config.ignore_robots_txt
       return unless can_visit?(url, @config.headers)
 
       pages_to_visit = build_initial_pages(url, query, batch_size, start_page)

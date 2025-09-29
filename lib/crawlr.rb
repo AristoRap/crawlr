@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require_relative "crawlr/version"
+require_relative "crawlr/collector"
+
+require "logger"
 
 # A Ruby scraping framework for parsing HTML and XML documents
 # @since 0.1.0
