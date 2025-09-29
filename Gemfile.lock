@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    crawlr (0.1.0)
+    crawlr (0.2.0)
       async (~> 2.32)
       async-http (~> 0.91.0)
       concurrent-ruby (~> 1.3)
