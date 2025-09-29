@@ -305,13 +305,11 @@ This gem is available as open source under the terms of the [MIT License](https:
 
 - Built with [Nokogiri](https://nokogiri.org/) for HTML/XML parsing
 - Uses [Async](https://github.com/socketry/async) for high-performance concurrency
-- Inspired by Golang's Colly framework and modern Ruby practices
-
+- Inspired by Golang's [Colly](https://go-colly.org) framework and modern Ruby practices
 ## 📞 Support
 
-- 📖 [Documentation](https://aristorap.github.io/crawlr)
+- 📖 [Documentation TBD](https://aristorap.github.io/crawlr)
 - 🐛 [Issue Tracker](https://github.com/aristorap/crawlr/issues)
-- 💬 [Discussions](https://github.com/aristorap/crawlr/discussions)
 
 ---
 
