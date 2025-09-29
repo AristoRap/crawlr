@@ -170,13 +170,11 @@ end
 # Process responses after each request
 collector.hook(:after_visit) do |url, response|
   puts "Got #{response.status} from #{url}"
-  log_response_time(url, response.headers['X-Response-Time'])
 end
 
 # Handle errors gracefully
 collector.hook(:on_error) do |url, error|
   puts "Failed to scrape #{url}: #{error.message}"
-  error_tracker.record(url, error)
 end
 ```
 
@@ -184,15 +182,11 @@ end
 
 ```ruby
 collector.on_html(:xpath, '//div[@class="content"]//p[position() <= 3]') do |paragraph, ctx|
-  # Extract first 3 paragraphs from content divs
-  ctx.content_paragraphs ||= []
-  ctx.content_paragraphs << paragraph.text.strip
+  # Do stuff
 end
 
 collector.on_xml(:xpath, '//item[price > 100]/title') do |title, ctx|
-  # Extract titles of expensive items from XML feeds
-  ctx.expensive_items ||= []
-  ctx.expensive_items << title.text
+  # Do stuff
 end
 ```
 
@@ -201,16 +195,12 @@ end
 ```ruby
 collector = Crawlr::Collector.new(allow_cookies: true)
 
-# Login first
-collector.on_html(:css, 'form[action="/login"]') do |form, ctx|
-  # Cookies from login will be automatically used in subsequent requests
-end
-
+# First visit will set cookies tor following requests
 collector.visit('https://site.com/login')
 collector.visit('https://site.com/protected-content') # Uses login cookies
 ```
 
-### Monitoring and Statistics
+### Stats
 
 ```ruby
 collector = Crawlr::Collector.new
