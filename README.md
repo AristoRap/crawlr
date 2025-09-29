@@ -71,20 +71,20 @@ collector.visit('https://example.com')
 
 ```ruby
 collector = Crawlr::Collector.new
-
+products = []
 # Extract product information
-collector.on_html(:css, '.product') do |product, ctx|
-  data = {
-    name: product.css('.product-name').text.strip,
-    price: product.css('.price').text.strip,
-    image: product.css('img')&.first&.[]('src')
-  }
-
-  ctx.products ||= []
-  ctx.products << data
+collector.visit('https://shop.example.com/products') do |c|
+  c.on_html(:css, '.product') do |product, ctx|
+    data = {
+      name: product.css('.product-name').text.strip,
+      price: product.css('.price').text.strip,
+      image: product.css('img')&.first&.[]('src')
+    }
+  
+    products << data
+  end
 end
-
-collector.visit('https://shop.example.com/products')
+# do something with data
 ```
 
 ### API Scraping with Pagination
@@ -94,14 +94,16 @@ collector = Crawlr::Collector.new(
   max_parallelism: 10,
   timeout: 30
 )
+mu = Mutex.new
+items = Array.new
 
-collector.on_xml(:css, 'item') do |item, ctx|
-  ctx.items ||= []
-  ctx.items << {
+collector.on_xml(:css, 'item') do |item, _ctx|
+  data =  {
     id: item.css('id').text,
     title: item.css('title').text,
     published: item.css('published').text
   }
+  mu.synchronize { items << data }
 end
 
 # Automatically handles pagination with ?page=1, ?page=2, etc.
