@@ -35,7 +35,6 @@ module Crawlr
   #
   #   domains.allowed?('https://any-site.com')  #=> true
   #
-  # @author [Your Name]
   # @since 0.1.0
   class Domains
     # Initializes a new Domains instance with the given configuration

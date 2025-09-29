@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "concurrent"
-require "crawlr/collector"
 
 RSpec.describe Crawlr::Collector do
   let(:collector) { described_class.new }

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "crawlr/context"
 
 RSpec.describe Crawlr::Context do
   let(:context) { described_class.new }

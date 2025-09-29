@@ -32,7 +32,6 @@ module Crawlr
   #     max_parallelism: 10
   #   )
   #
-  # @author [Your Name]
   # @since 0.1.0
   class Config
     # @return [Integer] HTTP request timeout in seconds

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "crawlr/callbacks"
+
 RSpec.describe Crawlr::Callbacks do
   subject(:callbacks) { described_class.new }
 

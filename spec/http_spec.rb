@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "crawlr/http_interface"
-require "crawlr/config"
 
 RSpec.describe Crawlr::HTTPInterface do
   let(:config) { Crawlr::Config.new }

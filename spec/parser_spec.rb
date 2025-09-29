@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "crawlr/parser"
 
 RSpec.describe Crawlr::Parser do
   describe ".apply_callbacks" do

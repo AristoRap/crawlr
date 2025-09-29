@@ -18,11 +18,16 @@ module Crawlr
   self.logger = Logger.new($stdout, level: Logger::DEBUG)
 end
 
-# Require your actual classes here
 require "crawlr/collector"
 require "crawlr/http_interface"
 require "crawlr/parser"
 require "crawlr/context"
+require "crawlr/config"
+require "crawlr/callbacks"
+require "crawlr/visits"
+require "crawlr/domains"
+require "crawlr/robots"
+require "crawlr/hooks"
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

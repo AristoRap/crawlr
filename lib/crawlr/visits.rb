@@ -56,7 +56,6 @@ module Crawlr
   #
   #   threads.each(&:join)
   #
-  # @author [Your Name]
   # @since 0.1.0
   class Visits
     # Initializes a new Visits tracker with the given configuration

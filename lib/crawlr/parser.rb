@@ -64,7 +64,6 @@ module Crawlr
   #   # HTML content parsed once, all callbacks executed on same document
   #   Crawlr::Parser.apply_callbacks(content: html, callbacks: callbacks, context: ctx)
   #
-  # @author [Your Name]
   # @since 0.1.0
   module Parser
     # Applies registered callbacks to parsed document content

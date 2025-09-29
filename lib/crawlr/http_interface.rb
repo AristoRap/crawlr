@@ -45,7 +45,6 @@ module Crawlr
   #     headers['X-Request-ID'] = SecureRandom.uuid
   #   end
   #
-  # @author [Your Name]
   # @since 0.1.0
   class HTTPInterface
     # Simplified HTTP response structure for internal use

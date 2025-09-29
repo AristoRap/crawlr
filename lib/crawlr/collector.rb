@@ -53,7 +53,6 @@ module Crawlr
   #     puts "Failed to scrape #{url}: #{error.message}"
   #   end
   #
-  # @author [Your Name]
   # @since 0.1.0
   class Collector
     # @return [Crawlr::Config] The configuration object for this collector

@@ -58,7 +58,6 @@ module Crawlr
   #   robots.allowed?('https://example.com/temp/secret.txt', 'Bot')     #=> false
   #   robots.allowed?('https://example.com/temp/public/file.txt', 'Bot') #=> true
   #
-  # @author [Your Name]
   # @since 0.1.0
   class Robots
     # Represents a robots.txt rule for a specific user-agent

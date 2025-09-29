@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "spec_helper"
-require "crawlr/config"
 
 RSpec.describe Crawlr::Config do
   describe "#initialize" do

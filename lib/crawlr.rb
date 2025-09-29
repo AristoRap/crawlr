@@ -3,7 +3,6 @@
 require_relative "crawlr/version"
 
 # A Ruby scraping framework for parsing HTML and XML documents
-# @author [Your Name]
 # @since 0.1.0
 module Crawlr
   class Error < StandardError; end
