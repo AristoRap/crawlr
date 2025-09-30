@@ -570,17 +570,19 @@ module Crawlr
     end
 
     def build_initial_pages(url, query, batch_size, start_page)
-      max_batch = [@config.max_depth, batch_size].min
+      uri = URI.parse(url)
+      max_batch = @config.max_depth.zero? ? batch_size : [@config.max_depth, batch_size].min
+
       if start_page == 1
-        [url] + (max_batch - 1).times.map { |i| "#{url}?#{query}=#{i + 2}" }
+        [url] + (max_batch - 1).times.map { |i| build_page_url(uri, query, i + 2) }
       else
-        max_batch.times.map { |i| "#{url}?#{query}=#{i + start_page}" }
+        max_batch.times.map { |i| build_page_url(uri, query, i + start_page) }
       end
     end
 
     def process_page_batches(pages, current_depth, batch_size, query)
       scheduled_depth = current_depth
-      max_batch = [@config.max_depth, batch_size].min
+      max_batch = @config.max_depth.zero? ? batch_size : [@config.max_depth, batch_size].min
 
       loop do
         break if reached_max_depth?(scheduled_depth)
@@ -625,7 +627,17 @@ module Crawlr
     end
 
     def generate_next_pages(batch, scheduled_depth, max_batch, query)
-      max_batch.times.map { |i| "#{batch.first}?#{query}=#{i + scheduled_depth + 1}" }
+      uri = URI.parse(batch.first)
+      (0...max_batch).map { |i| build_page_url(uri, query, i + scheduled_depth + 1) }
+    end
+
+    def build_page_url(uri, query, value)
+      new_uri = uri.dup
+      params = URI.decode_www_form(new_uri.query || "")
+      params.reject! { |k, _| k == query }
+      params << [query, value]
+      new_uri.query = URI.encode_www_form(params)
+      new_uri.to_s
     end
   end
 end

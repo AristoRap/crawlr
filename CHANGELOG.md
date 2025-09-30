@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.2.1] - 2025-09-30
+
+- Fix paginated_visit to properly handle provided url queries (if present)
+- Update paginated_visit batch size parameter to respect max_depth (if max_depth set > 0)
+
 ## [0.2.0] - 2025-09-30
 
 - Tidied up documentation and inline comments

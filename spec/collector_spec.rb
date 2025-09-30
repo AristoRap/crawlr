@@ -128,6 +128,41 @@ RSpec.describe Crawlr::Collector do
       expect(stats).to include(:max_depth, :callbacks_count, :allow_url_revisit)
     end
   end
+  describe "#build_initial_pages" do
+    it "preserves existing query params and appends pagination param" do
+      url = "https://example.com/search?foo=bar"
+      result = collector.send(:build_initial_pages, url, "page", 3, 1)
+
+      expect(result).to eq([
+                             "https://example.com/search?foo=bar",
+                             "https://example.com/search?foo=bar&page=2",
+                             "https://example.com/search?foo=bar&page=3"
+                           ])
+    end
+
+    it "generates correct sequence when start_page > 1" do
+      url = "https://example.com"
+      result = collector.send(:build_initial_pages, url, "page", 3, 3)
+
+      expect(result).to eq([
+                             "https://example.com?page=3",
+                             "https://example.com?page=4",
+                             "https://example.com?page=5"
+                           ])
+    end
+  end
+
+  describe "#generate_next_pages" do
+    it "generates next pages preserving existing query params" do
+      batch = ["https://example.com/results?foo=bar"]
+      result = collector.send(:generate_next_pages, batch, 1, 2, "page")
+
+      expect(result).to eq([
+                             "https://example.com/results?foo=bar&page=2",
+                             "https://example.com/results?foo=bar&page=3"
+                           ])
+    end
+  end
 
   describe "private methods" do
     describe "#input_to_url_array" do
