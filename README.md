@@ -3,7 +3,7 @@
 A powerful, async Ruby web scraping framework designed for respectful and efficient data extraction. Built with modern Ruby practices, crawlr provides a clean API for scraping websites while respecting robots.txt, managing cookies, rotating proxies, and handling complex scraping scenarios.
 
 [![Gem Version](https://badge.fury.io/rb/crawlr.svg)](https://badge.fury.io/rb/crawlr)
-[![Ruby](https://github.com/aristorap/crawlr/actions/workflows/ruby.yml/badge.svg)](https://github.com/aristorap/crawlr/actions/workflows/ruby.yml)
+[![Ruby](https://github.com/aristorap/crawlr/actions/workflows/ruby.yml/badge.svg)](https://github.com/aristorap/crawlr/actions/workflows/main.yml)
 
 ## ✨ Features
 
