@@ -77,12 +77,7 @@ module Crawlr
     #   domains.allowed?('https://any-domain.com')          #=> true
     def allowed?(url)
       return true if @allowed_domains.empty? && @domain_glob.empty?
-
-      unless @domain_glob.empty?
-        @domain_glob.each do |glob|
-          return true if File.fnmatch?(glob, url)
-        end
-      end
+      return true if !@domain_glob.empty? && matches_domain_glob?(url)
 
       uri = URI(url)
       base_name = uri.host.sub("www.", "")
@@ -113,6 +108,14 @@ module Crawlr
     end
 
     private
+
+    def matches_domain_glob?(url)
+      @domain_glob.each do |glob|
+        return true if File.fnmatch?(glob, url)
+      end
+
+      false
+    end
 
     # Extracts and normalizes domain names from the configuration
     #

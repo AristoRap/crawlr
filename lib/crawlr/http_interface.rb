@@ -3,7 +3,7 @@
 require "async"
 require "async/timeout"
 require "async/http/internet"
-require "http/cookie_jar"
+require_relative "cookie_jar"
 
 module Crawlr
   # Handles fetching documents via async HTTP with proxy and cookie support.
@@ -85,7 +85,7 @@ module Crawlr
     #   http = Crawlr::HTTPInterface.new(config)
     def initialize(config)
       @config = config
-      @cookie_jar = @config.allow_cookies ? HTTP::CookieJar.new : nil
+      @cookie_jars = Concurrent::Map.new if @config.allow_cookies
       @proxy_index = 0
     end
 
@@ -145,7 +145,8 @@ module Crawlr
       request_headers = @config.headers.dup
 
       if @config.allow_cookies
-        cookie_header = HTTP::Cookie.cookie_value(@cookie_jar.cookies(uri))
+        jar = cookie_jar_for(uri)
+        cookie_header = HTTP::Cookie.cookie_value(jar.cookies(uri))
         request_headers["cookie"] = cookie_header if cookie_header && !cookie_header.empty?
       end
 
@@ -272,14 +273,15 @@ module Crawlr
     #   parse_and_set_cookies(uri, response)
     #   # Cookie is stored and will be sent with future requests to example.com
     def parse_and_set_cookies(uri, response)
-      set_cookies = response.headers["set-cookie"]
-      Array(set_cookies).each do |set_cookie|
-        HTTP::Cookie.parse(set_cookie.to_s, uri).each do |cookie|
-          @cookie_jar.add(cookie)
-          Crawlr.logger.debug "Received cookie: #{cookie.name}=#{cookie.value};" \
-                              " domain=#{cookie.domain}, path=#{cookie.path}"
-        end
+      jar = cookie_jar_for(uri)
+      Array(response.headers["set-cookie"]).each do |set_cookie|
+        HTTP::Cookie.parse(set_cookie.to_s, uri).each { |cookie| jar.add(cookie) }
       end
+    end
+
+    # Get or create a thread-safe jar for a domain
+    def cookie_jar_for(uri)
+      @cookie_jars.compute_if_absent(uri.host) { Crawlr::CookieJar.new }
     end
   end
 end

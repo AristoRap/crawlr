@@ -80,30 +80,34 @@ RSpec.describe Crawlr::HTTPInterface do
     let(:mock_internet) { double("internet", get: nil, close: nil) }
 
     let(:first_response) do
-      double("response",
-             status: 200,
-             headers: { "set-cookie" => ["session=abc123; Path=/"] },
-             version: "1.1",
-             read: "<html>first</html>",
-             close: nil)
+      double(
+        "response",
+        status: 200,
+        headers: { "set-cookie" => ["session=abc123; Path=/; Domain=example.com"] },
+        version: "1.1",
+        read: "<html>first</html>",
+        close: nil
+      )
     end
+
     let(:second_response) do
-      double("response",
-             status: 200,
-             headers: {},
-             version: "1.1",
-             read: "<html>second</html>",
-             close: nil)
+      double(
+        "response",
+        status: 200,
+        headers: {},
+        version: "1.1",
+        read: "<html>second</html>",
+        close: nil
+      )
     end
 
     before do
       allow(http_with_cookies).to receive(:build_internet_connection).and_return(mock_internet)
-
       allow(Crawlr.logger).to receive(:debug)
     end
 
-    it "stores cookies from first response and sends them on second request" do
-      # First request returns Set-Cookie
+    it "stores cookies from first response and sends them on second request to same domain" do
+      # First request sets a cookie
       expect(mock_internet).to receive(:get)
         .with("https://example.com", anything)
         .and_return(first_response)
@@ -113,7 +117,7 @@ RSpec.describe Crawlr::HTTPInterface do
       # Second request should include the stored cookie in headers
       expect(mock_internet).to receive(:get) do |url, headers|
         expect(url).to eq("https://example.com/next")
-        expect(headers["cookie"]).to match(/session=abc123/) # verify cookie is sent
+        expect(headers["cookie"]).to match(/session=abc123/) # cookie sent
         second_response
       end
 
@@ -121,11 +125,11 @@ RSpec.describe Crawlr::HTTPInterface do
     end
 
     it "does not send cookies to a different domain" do
-      # First request sets a cookie for example.com
+      # First request sets cookie for example.com
       allow(mock_internet).to receive(:get).and_return(first_response)
       http_with_cookies.get("https://example.com")
 
-      # Request to another domain should NOT send the cookie
+      # Request to other.com should NOT send the cookie
       expect(mock_internet).to receive(:get) do |url, headers|
         expect(url).to eq("https://other.com/page")
         expect(headers["cookie"]).to be_nil
@@ -133,6 +137,30 @@ RSpec.describe Crawlr::HTTPInterface do
       end
 
       http_with_cookies.get("https://other.com/page")
+    end
+
+    it "isolates cookies per domain even if multiple domains are requested" do
+      # Set up responses for two domains
+      responses = {
+        "https://example.com" => first_response,  # sets a cookie
+        "https://other.com" => second_response    # no cookie
+      }
+
+      allow(mock_internet).to receive(:get) do |url, headers|
+        case url
+        when "https://example.com"
+          # First request to example.com: no cookie yet
+          expect(headers["cookie"]).to be_nil
+        when "https://other.com"
+          # Request to other.com should NOT send example.com's cookie
+          expect(headers["cookie"]).to be_nil
+        end
+
+        responses[url]
+      end
+
+      http_with_cookies.get("https://example.com")
+      http_with_cookies.get("https://other.com")
     end
   end
 
@@ -155,13 +183,7 @@ RSpec.describe Crawlr::HTTPInterface do
   end
   describe "proxy handling" do
     let(:proxies) { ["http://proxy1:8080", "http://proxy2:8080"] }
-    let(:config) do
-      Crawlr::Config.new(
-        proxies: proxies,
-        strategy: :round_robin,
-        headers: { "User-Agent" => "CrawlrBot" }
-      )
-    end
+    let(:config) { Crawlr::Config.new(proxies: proxies) }
     let(:http_interface) { described_class.new(config) }
     let(:mock_internet) { double("internet", get: mock_response, close: nil) }
     let(:mock_response) do
