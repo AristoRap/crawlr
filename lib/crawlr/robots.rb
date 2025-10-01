@@ -130,25 +130,13 @@ module Crawlr
     #   robots.allowed?('https://site.com/temporary/', 'Bot')    #=> true
     def allowed?(url, user_agent)
       rule = get_rule(url, user_agent)
-      return true unless rule # if no robots.txt or no rule, allow
+      return true unless rule
 
       path = URI.parse(url).path
-      matched = []
-
-      # Match allow/disallow using fnmatch (robots.txt style)
-      rule.allow.each do |pattern|
-        matched << [:allow, pattern] if robots_match?(pattern, path)
-      end
-
-      rule.disallow.each do |pattern|
-        matched << [:disallow, pattern] if robots_match?(pattern, path)
-      end
-
+      matched = matched_rules(rule, path)
       return true if matched.empty?
 
-      # Longest match wins
-      action, = matched.max_by { |_, p| p.length }
-      action == :allow
+      longest_match_allows?(matched)
     end
 
     # Parses robots.txt content and stores rules for the given URL's domain
@@ -204,6 +192,25 @@ module Crawlr
 
     private
 
+    def matched_rules(rule, path)
+      matched = []
+
+      rule.allow.each do |pattern|
+        matched << [:allow, pattern] if robots_match?(pattern, path)
+      end
+
+      rule.disallow.each do |pattern|
+        matched << [:disallow, pattern] if robots_match?(pattern, path)
+      end
+
+      matched
+    end
+
+    def longest_match_allows?(matched)
+      action, = matched.max_by { |_, pattern| pattern.length }
+      action == :allow
+    end
+
     # Finds the most applicable rule for a URL and user-agent combination
     #
     # Implements the robots.txt user-agent matching algorithm:
@@ -222,17 +229,21 @@ module Crawlr
       return nil unless rules
 
       # Case-insensitive prefix match
-      applicable_rules = rules.select do |rule|
-        next if rule.user_agent.nil?
-
-        user_agent.downcase.start_with?(rule.user_agent.downcase)
-      end
+      applicable_rules = rules_by_prefix_match(user_agent, rules)
 
       # Fallback to wildcard
       applicable_rules = rules.select { |rule| rule.user_agent == "*" } if applicable_rules.empty?
 
       # Most specific (longest UA name) wins
       applicable_rules.max_by { |r| r.user_agent.length }
+    end
+
+    def rules_by_prefix_match(user_agent, rules)
+      rules.select do |rule|
+        next if rule.user_agent.nil?
+
+        user_agent.downcase.start_with?(rule.user_agent.downcase)
+      end
     end
 
     # Tests if a robots.txt pattern matches a given path
@@ -291,38 +302,45 @@ module Crawlr
     #     }
     #   }
     def parse_to_hash(content)
-      robots_hash = {
-        sitemap: [],
-        rules: {}
-      }
-
+      robots_hash = { sitemap: [], rules: {} }
       curr_user_agents = []
 
       content.each_line do |line|
-        clean_line = line.strip
-        next if clean_line.empty? || clean_line.start_with?("#")
-
-        key, value = clean_line.split(":", 2).map(&:strip)
+        key, value = parse_line(line)
         next unless key && value
 
-        key = key.downcase
-
-        case key
-        when "sitemap"
-          robots_hash[:sitemap] << value
-        when "user-agent"
-          curr_user_agents = [value]
-          robots_hash[:rules][value] ||= { allow: [], disallow: [], crawl_delay: nil }
-        when "allow"
-          curr_user_agents.each { |ua| robots_hash[:rules][ua][:allow] << value }
-        when "disallow"
-          curr_user_agents.each { |ua| robots_hash[:rules][ua][:disallow] << value }
-        when "crawl-delay"
-          curr_user_agents.each { |ua| robots_hash[:rules][ua][:crawl_delay] = value }
-        end
+        curr_user_agents = apply_rule(robots_hash, key, value, curr_user_agents)
       end
 
       robots_hash
+    end
+
+    def parse_line(line)
+      clean_line = line.strip
+      return if clean_line.empty? || clean_line.start_with?("#")
+
+      key, value = clean_line.split(":", 2).map(&:strip)
+      return unless key && value
+
+      [key.downcase, value]
+    end
+
+    def apply_rule(robots_hash, key, value, curr_user_agents)
+      case key
+      when "sitemap"
+        robots_hash[:sitemap] << value
+      when "user-agent"
+        curr_user_agents = [value]
+        robots_hash[:rules][value] ||= { allow: [], disallow: [], crawl_delay: nil }
+      when "allow"
+        curr_user_agents.each { |ua| robots_hash[:rules][ua][:allow] << value }
+      when "disallow"
+        curr_user_agents.each { |ua| robots_hash[:rules][ua][:disallow] << value }
+      when "crawl-delay"
+        curr_user_agents.each { |ua| robots_hash[:rules][ua][:crawl_delay] = value }
+      end
+
+      curr_user_agents
     end
   end
 end
