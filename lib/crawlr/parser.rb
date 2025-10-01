@@ -165,13 +165,14 @@ module Crawlr
 
       callbacks_by_format.each do |format, format_callbacks|
         doc = parse_content(format, content)
-
-        format_callbacks.each do |callback|
-          Crawlr.logger.debug "Applying callback: #{callback[:selector_type]} #{callback[:selector]}"
-          nodes = extract_nodes(doc, callback[:selector_type], callback[:selector])
-          nodes.each { |node| callback[:block].call(node, context) }
-        end
+        format_callbacks.each { |callback| apply_callback(doc, callback, context) }
       end
+    end
+
+    private_class_method def self.apply_callback(doc, callback, context)
+      Crawlr.logger.debug "Applying callback: #{callback[:selector_type]} #{callback[:selector]}"
+      nodes = extract_nodes(doc, callback[:selector_type], callback[:selector])
+      nodes.each { |node| callback[:block].call(node, context) }
     end
 
     # Parses content using the appropriate Nokogiri parser
