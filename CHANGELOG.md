@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+## [0.2.2] - 2025-10-01
+
+- Refactor robots.rb and parser.rb to address a few rubocop complaints
+
 ## [0.2.1] - 2025-09-30
 
 - Fix paginated_visit to properly handle provided url queries (if present)
