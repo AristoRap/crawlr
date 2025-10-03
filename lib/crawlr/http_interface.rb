@@ -135,7 +135,7 @@ module Crawlr
     #   rescue StandardError => e
     #     puts "Request failed: #{e.message}"
     #   end
-    def get(url)
+    def get(url) # rubocop:disable Metrics/MethodLength
       Crawlr.logger.debug "Fetching #{url}"
 
       uri = URI.parse(url)
@@ -143,14 +143,9 @@ module Crawlr
       internet = build_internet_connection(proxy_url)
 
       request_headers = @config.headers.dup
+      handle_cookies(uri, request_headers)
 
-      if @config.allow_cookies
-        jar = cookie_jar_for(uri)
-        cookie_header = HTTP::Cookie.cookie_value(jar.cookies(uri))
-        request_headers["cookie"] = cookie_header if cookie_header && !cookie_header.empty?
-      end
-
-      yield(url, request_headers) if block_given?
+      yield(url, request_headers) if block_given? # Used for request customization hook
 
       raw_response = nil
       begin
@@ -282,6 +277,14 @@ module Crawlr
     # Get or create a thread-safe jar for a domain
     def cookie_jar_for(uri)
       @cookie_jars.compute_if_absent(uri.host) { Crawlr::CookieJar.new }
+    end
+
+    def handle_cookies(uri, request_headers)
+      return unless @config.allow_cookies
+
+      jar = cookie_jar_for(uri)
+      cookie_header = HTTP::Cookie.cookie_value(jar.cookies(uri))
+      request_headers["cookie"] = cookie_header if cookie_header && !cookie_header.empty?
     end
   end
 end

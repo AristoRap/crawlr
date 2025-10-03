@@ -141,9 +141,7 @@ module Crawlr
       raise ArgumentError, "Unsupported format: #{format}" unless ALLOWED_FORMATS.include?(format)
 
       selector_type, selector = parse_input(input)
-      unless ALLOWED_SELECTOR_TYPES.include?(selector_type)
-        raise ArgumentError, "Unsupported selector type: #{selector_type}"
-      end
+      raise ArgumentError, "Unsupported selector type: #{selector_type}" unless ALLOWED_SELECTOR_TYPES.include?(selector_type)
 
       register(format, selector_type, selector, &block)
     end

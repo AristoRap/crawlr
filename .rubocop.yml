@@ -3,9 +3,20 @@ AllCops:
   SuggestExtensions: false
   Exclude:
     - examples/*.rb
-
+    - spec/**/*.rb
+Metrics/MethodLength:
+  Max: 20
+Metrics/ClassLength:
+  Max: 300
+Metrics/AbcSize:
+  Max: 30
+Metrics/CyclomaticComplexity:
+  Max: 10
+Metrics/PerceivedComplexity:
+  Max: 10
+Layout/LineLength:
+  Max: 130
 Style/StringLiterals:
   EnforcedStyle: double_quotes
-
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes

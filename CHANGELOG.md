@@ -1,9 +1,9 @@
 ## [Unreleased]
 
-## [0.2.3] - 2025-10-01
+## [0.2.3] - 2025-10-03
 
 - Introduce custom HTTPInterface cookie_jar wrapped in concurrent map for safe reads/writes when batch visiting async
-- Refactor domains.rb to address rubocop offense
+- Rubocop related updates
 
 ## [0.2.2] - 2025-10-01
 
